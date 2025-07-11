@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mini ChatGPT Love 💖</title>
+    <style>
+        body {
+            background-color: #ffe6f0;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background-color: #ff80ab;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .chat-container {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            max-width: 70%;
+            margin: 8px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            line-height: 1.4;
+        }
+        .user {
+            align-self: flex-end;
+            background-color: #ffb6c1;
+            color: #fff;
+        }
+        .ai {
+            align-self: flex-start;
+            background-color: #fff;
+            border: 2px solid #ff80ab;
+            color: #333;
+        }
+        .input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #fff0f5;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ff80ab;
+            border-radius: 20px;
+            font-size: 1em;
+        }
+        .input-area button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #ff80ab;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .input-area button:hover {
+            background-color: #ff4081;
+        }
+    </style>
+</head>
+<body>
+    <header>Mini ChatGPT Love 💖</header>
+    <div class="chat-container" id="chat-container"></div>
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="Escribe tu mensaje..." />
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+
+        function appendMessage(text, className) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', className);
+            messageDiv.innerText = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input');
+            const text = userInput.value.trim();
+            if (text === '') return;
+
+            appendMessage(text, 'user');
+            userInput.value = '';
+
+            appendMessage('Escribiendo... 💬', 'ai');
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const data = await response.json();
+                const aiMessages = document.querySelectorAll('.ai');
+                aiMessages[aiMessages.length - 1].innerText = data.reply;
+            } catch (error) {
+                console.error(error);
+                const aiMessages = document.querySelectorAll('.ai');
+                aiMessages[aiMessages.length - 1].innerText = "❌ Error al conectar con la IA.";
+            }
+        }
+
+        document.getElementById('user-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
